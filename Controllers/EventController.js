@@ -25,3 +25,4 @@ exports.RegisterEvent = async (req, res) => {
     console.error(error);
   }
 };
+
