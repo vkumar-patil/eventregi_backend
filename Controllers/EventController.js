@@ -26,3 +26,13 @@ exports.RegisterEvent = async (req, res) => {
   }
 };
 
+exports.getRegisterdUser = async (req, res) => {
+  try {
+    const RegisterdUser = await Event.find();
+    res
+      .status(200)
+      .send({ message: "Registered usrs get", data: RegisterdUser });
+  } catch (error) {
+    res.status(400).send({ message: "data not found registerd users" });
+  }
+};
