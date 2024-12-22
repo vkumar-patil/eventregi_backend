@@ -1,0 +1,42 @@
+.json
+ejs.node_module
+ejs.cmd
+lock.json
+# Config Files
+.env
+config.json
+secrets.json
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+# Dependencies
+node_modules/
+
+# Build
+/dist/
+/build/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# IDE-specific
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Coverage
+coverage/
+
+# Miscellaneous
+*.tmp
+*.bak
