@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
       res.status(400).send("invalid credencial wrong password");
     }
     const token = jwt.sign(
-      { username: user.username, email: user.email },
+      { username: user.username, email: user.email, Admin: user.Admin },
       process.env.JWT_SECRET,
       { expiresIn: "1hr" }
     );
