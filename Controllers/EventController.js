@@ -3,12 +3,16 @@ exports.RegisterEvent = async (req, res) => {
   try {
     const { username, email, Contact, eventName, eventDate, payment } =
       req.body;
+    const parsedDate = new Date(eventDate);
+    if (isNaN(parsedDate)) {
+      return res.status(400).send({ message: "Invalid event date format." });
+    }
     const newEvent = new Event({
       username,
       email,
       Contact,
       eventName,
-      eventDate,
+      eventDate: parsedDate,
       payment,
     });
     await newEvent.save();
