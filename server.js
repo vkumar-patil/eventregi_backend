@@ -4,6 +4,8 @@ const router = require("./Routes/userRoute");
 const EventRouter = require("./Routes/EventRoute");
 const connectDB = require("./Config/db"); // Import database connection function
 const app = express();
+require("dotenv").config();
+
 const port = 8000;
 
 // Call the connectDB function to establish connection with MongoDB
