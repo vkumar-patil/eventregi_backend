@@ -15,65 +15,45 @@ exports.register = async (req, res) => {
   }
 };
 
-// exports.login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     // Check if the user exists
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(400).send("Invalid credentials"); // Return prevents further execution
-//     }
-
-//     // Compare the password
-//     const hashpassword = user.password;
-//     const isvalidpassword = await bcrypt.compare(password, hashpassword);
-//     if (!isvalidpassword) {
-//       return res.status(400).send("Invalid credentials: wrong password"); // Return prevents further execution
-//     }
-
-//     // Generate the JWT token
-//     const token = jwt.sign(
-//       { username: user.username, email: user.email, Admin: user.Admin },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "1h" }
-//     );
-
-//     // Send the response
-//     return res.status(200).send({
-//       message: "Login successful",
-//       token,
-//       user: { username: user.username, email: user.email, Admin: user.Admin },
-//     });
-//   } catch (error) {
-//     console.error("Login error:", error); // Log the error for debugging
-//     return res.status(500).send("An error occurred during login");
-//   }
-// };
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(400).send("invalid credincial");
+      return res.status(400).send("Invalid credentials: User does not exist.");
     }
-    const hashpassword = user.password;
-    const isvalidpassword = await bcrypt.compare(password, hashpassword);
-    if (!isvalidpassword) {
-      res.status(400).send("invalid credencial wrong password");
+
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).send("Invalid credentials: Wrong password.");
     }
+
+    // Generate JWT
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not set in the environment variables.");
+    }
+
     const token = jwt.sign(
       { username: user.username, email: user.email, Admin: user.Admin },
       process.env.JWT_SECRET,
-      { expiresIn: "1hr" }
+      { expiresIn: "1h" } // Corrected "1hr" to "1h" as per JWT convention
     );
-    res.status(200).send({
-      message: "login successful",
+
+    // Send response
+    return res.status(200).send({
+      message: "Login successful",
       token,
-      user: { username: user.username, email: user.email, Admin: user.Admin },
+      user: {
+        username: user.username,
+        email: user.email,
+        Admin: user.Admin,
+      },
     });
   } catch (error) {
-    res.status(400).send("invalid credincial login fail");
+    console.error("Login Error:", error.message);
+    return res.status(500).send("Server error: Login failed.");
   }
 };

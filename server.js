@@ -11,7 +11,7 @@ const port = 8000;
 // Call the connectDB function to establish connection with MongoDB
 connectDB();
 
-app.use(cors());
+app.use(cors("http://localhost:3000"));
 app.use(express.json());
 app.use("/api/user", router);
 app.use("/api/Event", EventRouter);
