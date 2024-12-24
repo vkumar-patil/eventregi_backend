@@ -1,4 +1,4 @@
-const User = require("../Model/userModel");
+const users = require("../Model/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -7,7 +7,7 @@ exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const hashpassword = await bcrypt.hash(password, 10);
-    const Newuser = new User({ username, email, password: hashpassword });
+    const Newuser = new users({ username, email, password: hashpassword });
     await Newuser.save();
     res.status(200).send("user created done");
   } catch (error) {
@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await users.findOne({ email });
     if (!user) {
       return res
         .status(400)
