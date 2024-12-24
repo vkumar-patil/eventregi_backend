@@ -14,7 +14,6 @@ exports.register = async (req, res) => {
     res.status(400).send(error.message);
   }
 };
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -22,34 +21,89 @@ exports.login = async (req, res) => {
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send("Invalid credentials"); // Return prevents further execution
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials: User not found",
+      });
     }
 
     // Compare the password
-    const hashpassword = user.password;
-    const isvalidpassword = await bcrypt.compare(password, hashpassword);
-    if (!isvalidpassword) {
-      return res.status(400).send("Invalid credentials: wrong password"); // Return prevents further execution
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials: Incorrect password",
+      });
     }
 
     // Generate the JWT token
     const token = jwt.sign(
-      { username: user.username, email: user.email, Admin: user.Admin },
+      {
+        username: user.username,
+        email: user.email,
+        Admin: user.Admin,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Send the response
-    return res.status(200).send({
+    // Send the response with token and user details
+    return res.status(200).json({
+      success: true,
       message: "Login successful",
       token,
-      user: { username: user.username, email: user.email, Admin: user.Admin },
+      user: {
+        username: user.username,
+        email: user.email,
+        Admin: user.Admin,
+      },
     });
   } catch (error) {
-    console.error("Login error:", error); // Log the error for debugging
-    return res.status(500).send("An error occurred during login");
+    console.error("Login error:", error.message); // Log the error for debugging
+
+    // Specific error handling for different cases (e.g., invalid token secret, DB connection issues)
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred during login, please try again later",
+    });
   }
 };
+
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     // Check if the user exists
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).send("Invalid credentials"); // Return prevents further execution
+//     }
+
+//     // Compare the password
+//     const hashpassword = user.password;
+//     const isvalidpassword = await bcrypt.compare(password, hashpassword);
+//     if (!isvalidpassword) {
+//       return res.status(400).send("Invalid credentials: wrong password"); // Return prevents further execution
+//     }
+
+//     // Generate the JWT token
+//     const token = jwt.sign(
+//       { username: user.username, email: user.email, Admin: user.Admin },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1h" }
+//     );
+
+//     // Send the response
+//     return res.status(200).send({
+//       message: "Login successful",
+//       token,
+//       user: { username: user.username, email: user.email, Admin: user.Admin },
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error); // Log the error for debugging
+//     return res.status(500).send("An error occurred during login");
+//   }
+// };
 
 // exports.login = async (req, res) => {
 //   try {
