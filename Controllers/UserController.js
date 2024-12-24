@@ -1,13 +1,13 @@
 const User = require("../Model/userModel");
-//const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    // const hashpassword = await bcrypt.hash(password, 10);
-    // : hashpassword
-    const Newuser = new User({ username, email, password });
+    const hashpassword = await bcrypt.hash(password, 10);
+    const Newuser = new User({ username, email, password: hashpassword });
     await Newuser.save();
     res.status(200).send("user created done");
   } catch (error) {
@@ -34,18 +34,18 @@ exports.login = async (req, res) => {
         .json({ message: "Invalid credentials: User not found" });
     }
 
-    // Check password
-    // const isValidPassword = await bcrypt.compare(password, user.password);
-    // if (!isValidPassword) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Invalid credentials: Wrong password" });
-    // }
+    //  Checck
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials: Wrong password" });
+    }
 
     // Generate token
     const token = jwt.sign(
       { username: user.username, email: user.email, Admin: user.Admin },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
 
