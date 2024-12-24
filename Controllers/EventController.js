@@ -1,22 +1,14 @@
 const Event = require("../Model/EventModel");
 exports.RegisterEvent = async (req, res) => {
   try {
-    const {
-      username,
-      email,
-      Contact,
-      eventName,
-      eventDate,
-      ticketType,
-      payment,
-    } = req.body;
+    const { username, email, Contact, eventName, eventDate, payment } =
+      req.body;
     const newEvent = new Event({
       username,
       email,
       Contact,
       eventName,
       eventDate,
-      ticketType,
       payment,
     });
     await newEvent.save();

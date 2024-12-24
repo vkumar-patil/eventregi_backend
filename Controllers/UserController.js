@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     res.status(200).send({
       message: "login successful",
       token,
-      user: { username: user.username, email: user.email },
+      user: { username: user.username, email: user.email, Admin: user.Admin },
     });
   } catch (error) {
     res.status(400).send("invalid credincial login fail");
