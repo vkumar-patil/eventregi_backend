@@ -1,13 +1,13 @@
 const User = require("../Model/userModel");
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    const hashpassword = await bcrypt.hash(password, 10);
-
-    const Newuser = new User({ username, email, password: hashpassword });
+    // const hashpassword = await bcrypt.hash(password, 10);
+    // : hashpassword
+    const Newuser = new User({ username, email, password });
     await Newuser.save();
     res.status(200).send("user created done");
   } catch (error) {
@@ -19,41 +19,44 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
+    // Validate input
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send("Invalid credentials: User does not exist.");
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials: User not found" });
     }
 
-    // Compare password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).send("Invalid credentials: Wrong password.");
-    }
+    // Check password
+    // const isValidPassword = await bcrypt.compare(password, user.password);
+    // if (!isValidPassword) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Invalid credentials: Wrong password" });
+    // }
 
-    // Generate JWT
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is not set in the environment variables.");
-    }
-
+    // Generate token
     const token = jwt.sign(
       { username: user.username, email: user.email, Admin: user.Admin },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Corrected "1hr" to "1h" as per JWT convention
+      { expiresIn: "1h" }
     );
 
-    // Send response
-    return res.status(200).send({
+    // Respond with success
+    return res.status(200).json({
       message: "Login successful",
       token,
-      user: {
-        username: user.username,
-        email: user.email,
-        Admin: user.Admin,
-      },
+      user: { username: user.username, email: user.email, Admin: user.Admin },
     });
   } catch (error) {
-    console.error("Login Error:", error.message);
-    return res.status(500).send("Server error: Login failed.");
+    console.error("Login error:", error.message);
+    return res.status(500).json({ message: "An error occurred during login" });
   }
 };
