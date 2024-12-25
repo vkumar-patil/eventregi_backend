@@ -65,35 +65,38 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
+    // Validate email and password
     if (!email || !password) {
       return res
         .status(400)
         .send({ message: "Email and password are required" });
     }
 
+    // Normalize email to lowercase to avoid case sensitivity issues
+    const normalizedEmail = email.toLowerCase();
+
     // Find user by email
-    const user = await users.findOne({ email });
+    const user = await users.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).send({ message: "Invalid credentials" });
     }
 
-    // Compare password
-    // const isPasswordValid = await bcrypt.compare(password, user.password);
-    // if (!isPasswordValid) {
-    //   return res.status(401).send({ message: "Invalid credentials" });
-    // }
+    // Compare plain text passwords
+    if (user.password !== password) {
+      return res.status(401).send({ message: "Invalid credentials" });
+    }
+
     const token = jwt.sign(
       {
         userId: user.id,
         username: user.username,
         email: user.email,
-        contact: user.contact,
         Admin: user.Admin,
       },
       JWT_SECRET,
       { expiresIn: "1hr" }
     );
+
     res.status(200).send({
       message: "Login successful",
       token,
@@ -101,7 +104,6 @@ exports.login = async (req, res) => {
         userId: user.id,
         username: user.username,
         email: user.email,
-        contact: user.contact,
         Admin: user.Admin,
       },
       success: true,
