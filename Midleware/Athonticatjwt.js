@@ -1,13 +1,28 @@
-exports.authenticateJWT = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+const jwt = require('jsonwebtoken');
 
-  if (token) {
-    jwt.verify(token, "yourSecretKey", (err, user) => {
-      if (err) return res.sendStatus(403);
-      req.user = user; // रिक्वेस्टमध्ये वापरकर्ता जोडा
-      next();
-    });
-  } else {
-    res.sendStatus(401); // टोकन नाही
+// Middleware to check if the token is valid
+const verifyJWT = (req, res, next) => {
+  const token = req.headers['authorization'];
+
+  // Check if the token is provided
+  if (!token) {
+    return res.status(403).json({ message: 'No token provided, authorization denied' });
   }
+
+  // Remove the "Bearer" prefix if it exists
+  const actualToken = token.startsWith('Bearer ') ? token.slice(7, token.length) : token;
+
+  // Verify the token
+  jwt.verify(actualToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Invalid token, authorization denied' });
+    }
+
+    // Save the decoded data (user info) into the request object for further use
+    req.user = decoded;
+
+    next(); // Call next() to pass control to the next middleware/route handler
+  });
 };
+
+module.exports = verifyJWT;
