@@ -1,4 +1,4 @@
-const users = require("../Model/userModel");
+const mainusers = require("../Model/MainUserModel");
 //const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -7,7 +7,7 @@ exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     // const hashpassword = await bcrypt.hash(password, 10);
-    const Newuser = new users({ username, email, password });
+    const Newuser = new mainusers({ username, email, password });
     await Newuser.save();
     res.status(200).send("user created done");
   } catch (error) {
@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
     const normalizedEmail = email.toLowerCase();
 
     // Find user by email
-    const user = await users.findOne({ email: normalizedEmail });
+    const user = await mainusers.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).send({ message: "Invalid credentials" });
     }
