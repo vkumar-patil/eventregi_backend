@@ -32,3 +32,18 @@ exports.getRegisterdUser = async (req, res) => {
     res.status(400).send({ message: "data not found registerd users" });
   }
 };
+// exports.deleteEvent = async (req, res) => {
+//   try {
+//     const eventId = req.params.id;
+//     const event = await Event.findByIdAndDelete(eventId);
+
+//     if (!event) {
+//       return res.status(404).send({ message: "Event not found" });
+//     }
+
+//     res.status(200).send({ message: "Event deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting event:", error.message);
+//     res.status(500).send({ message: "Failed to delete event" });
+//   }
+// };
